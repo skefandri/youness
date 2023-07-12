@@ -6,7 +6,7 @@
 /*   By: ysabr <ysabr@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/23 23:06:48 by ysabr             #+#    #+#             */
-/*   Updated: 2023/06/26 21:26:52 by ysabr            ###   ########.fr       */
+/*   Updated: 2023/07/11 21:58:40 by ysabr            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,43 +151,7 @@ void    declare_envs(t_env *env)
     }
 }
 
-void    re_export(char **args)
-{
-    int i;
 
-    i = 0;
-    // env = malloc(sizeof(t_env));
-    if (!args[i])
-    {
-        declare_envs(env);
-        return ;
-    }
-    while(args[i])
-    {
-        if (is_valid_identifier())
-    }
-}
-
-int main(int ac, char **av, char **env)
-{
-    t_env   *tmp;
-    (void)ac;
-    (void)av;
-
-    tmp = set_envs(env);
-    //int i = 0;
-    // while (tmp)
-    // {
-    //     printf("str : %s\n", tmp->str);
-    //     printf("env : %s\n", tmp->env);
-    //     printf("value : %s\n", tmp->value);
-    //     tmp = tmp->next;
-    // }
-    re_export(tmp);
-}
-
-
-////////////////////////////------------>
 void    declare_envs(void)
 {
     t_env    *tmp;
