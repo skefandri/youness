@@ -6,7 +6,7 @@
 /*   By: ysabr <ysabr@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/09 11:08:06 by ysabr             #+#    #+#             */
-/*   Updated: 2023/06/14 11:54:14 by ysabr            ###   ########.fr       */
+/*   Updated: 2023/07/13 15:36:36 by ysabr            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,12 +101,36 @@ t_token *create_token(char character, char next_char)
     return token;
 }
 
+
 void    process_tokens(char *line, t_command **lexer)
 {
     int i = 0;
     t_token *token = NULL;
+    char c;
     while (line[i])
     {
+        while(line [i] == ' ' || line[i] == '\t')
+            i++;
+        if (!line[i])
+            break;
+        token = malloc(sizeof(t_token));
+        token->content = NULL;
+        while(line[i])
+        {
+            if (c == 0 && (line[i] == '\'' || line[i] =='\"'))
+                c = line[i];
+            else if (c == line[i])
+                c = 0;
+            if (c == 0 && (line[i] == '<' || line[i] == '>' || line[i] == '|' || line[i] == ' ' || line[i] == '\t'))
+                break ;
+            token->content = add_char(token->content, line[i]);
+            i++;
+        }
+        if (token->content)
+        {
+            token->type = TOKEN_STRING;
+            ft_lstadd_back(lexer, ft_lstnew(token));
+        }
         if (line[i] == '<' || line[i] == '>')
         {
             token = create_token(line[i], line[i+1]);
@@ -114,41 +138,12 @@ void    process_tokens(char *line, t_command **lexer)
                 i+=2;
             else
                 i++;
+            ft_lstadd_back(lexer, ft_lstnew(token));
         }
         else if (line[i] == '|')
+        {
             token = create_token(line[i++], '\0');
-        else if (line[i] != ' ')
-        {
-            while ((line[i]) && line[i] != '<' && line[i] != '>' && line[i] != '|' && line[i] != ' ')
-            {
-                if (!token)
-                    token = create_token(line[i], '\0');
-                else if (line[i] == '\'' || line[i] == '"')
-                {
-                    char quote = line[i];
-                    i++;
-                    while(line[i] && line[i] != quote)
-                    {
-                        token->content = add_char(token->content, line[i]);
-                        i++;
-                    }
-                    if (line[i] == quote)
-                        i++;
-                }
-                else
-                    token->content = add_char(token->content, line[i]);
-                i++;
-            }
-            //token->content = expand_variable(token->content);
-            if (token)
-                token->type = TOKEN_STRING;
-        }
-        else if (line[i] == ' ' || line[i] == '\t')
-            i++;
-        if (token)
-        {
             ft_lstadd_back(lexer, ft_lstnew(token));
-            token = NULL;
         }
     }
     if (line[i] == '\0')

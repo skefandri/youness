@@ -6,14 +6,14 @@
 /*   By: ysabr <ysabr@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/23 23:06:48 by ysabr             #+#    #+#             */
-/*   Updated: 2023/07/11 21:58:40 by ysabr            ###   ########.fr       */
+/*   Updated: 2023/07/13 07:46:04 by ysabr            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-//#include "./includes/minishell.h"
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+#include "../includes/minishell.h"
+// #include <stdio.h>
+// #include <string.h>
+// #include <stdlib.h>
 typedef struct s_env
 {
     char    *str;
@@ -47,110 +47,6 @@ char	*ft_substr(char const *s, unsigned int start, size_t len)
 	ptr[i] = '\0';
 	return (ptr);
 }
-
-
-void	ft_lstadd_back_env(t_env **lst, t_env *new)
-{
-	t_env	*ptr;
-
-	if (!lst)
-		return ;
-	if (!(*lst))
-	{
-		*lst = new;
-		return ;
-	}
-	ptr = *lst;
-	while (ptr->next)
-	{
-		ptr = ptr->next;
-	}
-	ptr->next = new;
-}
-
-char *get_env(char *str)
-{
-    char *new;
-    int i;
-    int j;
-
-    i = 0;
-    j = 0;
-    while(str[i])
-    {
-        if (str[i] == '=')
-            j = i;
-        i++;
-    }
-    new = ft_substr(str, 0, j);
-    if (!new)
-        strdup("");
-    return (new);
-}
-
-char *get_value(char *str)
-{
-    char *new;
-    int i;
-    int j;
-
-    i = 0;
-    j = 0;
-    while(str[i])
-    {
-        if (str[i] == '=')
-            j = i;
-        i++;
-    }
-    new = ft_substr(str, j + 1, i);
-    if (!new)
-        strdup("");
-    return (new);
-}
-t_env	*ft_lstnew_env(char *str)
-{
-	t_env	*new;
-
-	new = malloc(sizeof(t_env));
-	if (!new)
-		return (NULL);
-	new->str = strdup(str);
-    new->env = get_env(str);
-    new->value = get_value(str);
-	new->next = NULL;
-	return (new);
-}
-t_env   *set_envs(char **av)
-{
-    int i;
-    t_env   *head;
-
-    i = 0;
-    while(av[i])
-        ft_lstadd_back_env(&head, ft_lstnew_env(av[i++]));
-    return (head);
-}
-
-void    declare_envs(t_env *env)
-{
-    t_env   *tmp;
-
-    tmp = env;
-    while (tmp)
-    {
-        if (tmp->value)
-        {
-            printf("declare -x %s=\"", tmp->env);
-            printf("%s\"\n", tmp->value);
-        }
-        else
-        {
-            printf("declare -x %s\n", tmp->env);
-        }
-        tmp = tmp->next;
-    }
-}
-
 
 void    declare_envs(void)
 {
@@ -245,4 +141,3 @@ void    re_export(char **args)
         i++;
     }
 }
-

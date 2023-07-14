@@ -134,22 +134,6 @@ char* get_env_value(char** env, char* temp, int start, int i)
     return value;
 }
 
-
-// char* get_env_value(char** env, char* temp, int start, int i)
-// {
-//     char* value = NULL;
-//     int j = 0;
-//     while(env[j])
-//     {
-//         if (strncmp(temp, env[j], i - start) == 0 && env[j][i - start] == '=')
-//         {
-//             value = env[j] + i - start + 1;
-//             break;
-//         }
-//         j++;
-//     }
-//     return value;
-// }
 char    *append_segment(char* result, char* str, int start, int end)
 {
     char* temp = extract_substring(str, start, end);
@@ -175,18 +159,7 @@ char    *append_env_value(char* result, char* value)
         result = str_alloc_copy(value);
     return result;
 }
-
-
-
-
-
-
-
-
-
-
-
-////////BEST BEEEEEEST
+int exit_status = 0;
 char *expand_result(char *str, char **env)
 {
     int i = 0, start = 0;
@@ -199,9 +172,7 @@ char *expand_result(char *str, char **env)
         if (str[i] == '\'')
         {
             if (!in_double_quotes)
-            {
                 in_single_quotes = !in_single_quotes;
-            }
             i++;
             continue;
         }
@@ -214,10 +185,23 @@ char *expand_result(char *str, char **env)
             continue;
         }
 
-        if (str[i] == '$' && !in_single_quotes)
+        if (str[i] == '$'  && !in_single_quotes )
         {
-            if (str[i+1] == '$')
+            if (str[i+1] == '?')
             {
+                char exit_status_str[11]; // Enough to hold all int values
+                sprintf(exit_status_str, "%d", exit_status);
+
+                // append the segment before $? and the exit status
+                result = append_segment(result, str, start, i);
+                result = append_to_str(result, exit_status_str);
+                start = i + 2; // +2 to skip $? 
+                i += 2;
+                continue;
+            }
+            else if (str[i+1] == '$')
+            {
+                
                 result = append_segment(result, str, start, i+1);
                 start = i+1;
                 i+=2;
@@ -242,6 +226,7 @@ char *expand_result(char *str, char **env)
             else // case when there is only a $ sign without a following variable
             {
                 result = append_segment(result, str, start, i + 1);
+                printf("result : %s\n", result);
                 start = i + 1;
             }
             i = variable_start;
@@ -255,165 +240,11 @@ char *expand_result(char *str, char **env)
     return result;
 }
 
-
-
-
-//OTHER
-
-
-
-
-// char *expand_result(char *str, char **env)
-// {
-//     int i = 0, start = 0;
-//     char *result = NULL;
-//     bool in_single_quotes = false;
-//     bool in_double_quotes = false;
-
-//     while (str[i] != '\0')
-//     {
-//         if (str[i] == '\'')
-//         {
-//             if (!in_double_quotes)
-//             {
-//                 in_single_quotes = !in_single_quotes;
-//             }
-//             i++;
-//             continue;
-//         }
-
-//         if (str[i] == '\"')
-//         {
-//             if (!in_single_quotes)
-//                 in_double_quotes = !in_double_quotes;
-//             i++;
-//             continue;
-//         }
-
-//         if (str[i] == '$' && !in_single_quotes)
-//         {
-//             int dollar_count = 0;
-//             while (str[i + dollar_count] == '$') // Count $ signs
-//             {
-//                 dollar_count++;
-//             }
-//             int variable_start = i + dollar_count;
-//             while (str[variable_start] != '\0' && is_variable_character(str[variable_start]))
-//                 variable_start++;
-//             if (variable_start != i + dollar_count)
-//             {
-//                 char *temp = extract_substring(str, i + dollar_count, variable_start);
-//                 char *value = get_env_value(env, temp, i + dollar_count, variable_start);
-//                 result = append_segment(result, str, start, i);
-//                 if (value != NULL)
-//                 {
-//                     result = append_env_value(result, value);
-//                 }
-//                 free(temp);
-//                 start = variable_start;
-//             }
-//             else // case when there are only dollar signs without a following variable
-//             {
-//                 result = append_segment(result, str, start, i + dollar_count);
-//                 start = i + dollar_count;
-//             }
-//             i = variable_start;
-//         }
-//         else
-//         {
-//             i++;
-//         }
-//     }
-//     result = append_segment(result, str, start, i);
-//     return result;
-// }
-
-
-
-
-// original and want to handle
-
-
-
-
-
-
-
-
-// char *expand_result(char *str, char **env)
-// {
-//     int i = 0, start = 0;
-//     char *result = NULL;
-//     bool in_single_quotes = false;
-//     bool in_double_quotes = false;
-
-//     while (str[i] != '\0')
-//     {
-//         if (str[i] == '\'')
-//         {
-//             if (!in_double_quotes)
-//             {
-//                 in_single_quotes = !in_single_quotes;
-//             }
-//             i++;
-//             continue;
-//         }
-
-//         if (str[i] == '\"')
-//         {
-//             if (!in_single_quotes)
-//                 in_double_quotes = !in_double_quotes;
-//             i++;
-//             continue;
-//         }
-
-//         if (str[i] == '$' && !in_single_quotes)
-//         {
-//             int dollar_count = 0;
-//             while (str[i + dollar_count] == '$') // Count $ signs
-//             {
-//                 dollar_count++;
-//             }
-//             int variable_start = i + dollar_count;
-//             while (str[variable_start] != '\0' && is_variable_character(str[variable_start]))
-//                 variable_start++;
-//             if (variable_start != i + dollar_count)
-//             {
-//                 char *temp = extract_substring(str, i + dollar_count, variable_start);
-//                 char *value = get_env_value(env, temp, i + dollar_count, variable_start);
-//                 if (value != NULL && dollar_count % 2 == 1) // replace only if the number of dollar signs is odd
-//                 {
-//                     result = append_segment(result, str, start, i + dollar_count - 1);
-//                     result = append_env_value(result, value);
-//                 } 
-//                 else // if the dollar count is even, append the dollar signs and variable as is
-//                 {
-//                     result = append_segment(result, str, start, variable_start);
-//                 }
-//                 free(temp);
-//                 start = variable_start;
-//             }
-//             else // case when there are only dollar signs without a following variable
-//             {
-//                 result = append_segment(result, str, start, i + dollar_count);
-//                 start = i + dollar_count;
-//             }
-//             i = variable_start;
-//         }
-//         else
-//         {
-//             i++;
-//         }
-//     }
-//     result = append_segment(result, str, start, i);
-//     return result;
-// }
-
 int main(int ac, char* av[], char* env[])
 {
     (void)ac;
     (void)av;
-    char    *result = expand_result("$USER$$USER$$$$USER$USER$USERjds$USER_jhsa", env);
+    char    *result = expand_result("\"'$USER'\"", env);
     printf("%s\n", result);
     free(result);
     return 0;

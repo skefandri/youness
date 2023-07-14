@@ -6,7 +6,7 @@
 /*   By: ysabr <ysabr@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 11:17:48 by ysabr             #+#    #+#             */
-/*   Updated: 2023/06/23 23:08:57 by ysabr            ###   ########.fr       */
+/*   Updated: 2023/07/14 21:14:45 by ysabr            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,13 +38,13 @@ typedef struct s_token
     char *content;
 } t_token;
 
-typedef struct s_env
-{
-    char    *str;
-    char    *env;
-    char    *value;
-    struct s_env *next;
-} t_env;
+// typedef struct s_env
+// {
+//     char    *str;
+//     char    *env;
+//     char    *value;
+//     struct s_env *next;
+// } t_env;
 
 typedef struct s_command
 {
@@ -115,4 +115,22 @@ int     check_syntax(char **tokens);
 void    handle_input_line(char *line, t_command **lexer, t_token **token);
 void    handle_input_chars(char *line, int *i, t_command **lexer, t_token **token);
 void    handle_lexer(t_command **lexer, t_data **data, t_file **file, t_cmd **cmd);
+
+char	*ft_itoa(int n);
+
+// void	ft_lstadd_back_env(t_env **lst, t_env *new);
+// char *get_env(char *str);
+// char *get_value(char *str);
+// t_env	*ft_lstnew_env(char *str);
+// t_env   *set_envs(char **av);
+// void    declare_envs(t_env *env);
+// //void    declare_envs(void);
+// static int    ft_isalnums(int an);
+// int is_valid_start(char c);
+// int is_valid_identifier(char *str);
+// void    add_to_env(char *str);
+// void    re_export(char **args);
+
+
+
 #endif
