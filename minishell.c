@@ -6,7 +6,7 @@
 /*   By: ysabr <ysabr@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 11:17:37 by ysabr             #+#    #+#             */
-/*   Updated: 2023/07/14 22:34:23 by ysabr            ###   ########.fr       */
+/*   Updated: 2023/07/15 19:10:37 by ysabr            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -174,6 +174,8 @@ char    *append_env_value(char* result, char* value)
 }
 
 int exit_status = 0;
+
+
 char *expand_result(char *str, char **env)
 {
     int i = 0, start = 0;
@@ -190,7 +192,6 @@ char *expand_result(char *str, char **env)
             i++;
             continue;
         }
-
         if (str[i] == '\"')
         {
             if (!in_single_quotes)
@@ -198,8 +199,7 @@ char *expand_result(char *str, char **env)
             i++;
             continue;
         }
-
-        if (str[i] == '$'  && !in_single_quotes )
+        if (str[i] == '$'  && !in_single_quotes)
         {
             if (str[i+1] == '?')
             {
@@ -212,7 +212,6 @@ char *expand_result(char *str, char **env)
             }
             else if (str[i+1] == '$')
             {
-                
                 result = append_segment(result, str, start, i+1);
                 start = i+1;
                 i+=2;
@@ -220,29 +219,38 @@ char *expand_result(char *str, char **env)
             }
 			else if ((str[i+1] >= 48 && str[i+1] <= 57) || str[i + 1] == '@')
             {
+                result = append_segment(result, str, start, i);
                 start = i + 2; 
                 i += 2;
-                result = append_segment(result, str, start, i);
                 continue;
             }
-			////error I need to fix it
-			// else if (i + 2 < (int)strlen(str) && ((str[i + 1] == '\'' && str[i + 2] == '\'') || (str[i + 1] == '"' && str[i + 2] == '"')))
-			// {
-			// 	start += 1;
-			// 	i+=1;
-			// }
+			else if ((str[i + 1] == '\'') || (str[i + 1] == '"'))
+			{
+				result = append_segment(result, str, 0, 0);
+				printf("before : result : %s\n", result);
+				printf("before : i : %c\n", str[i]);
+				printf("before : start : %c\n", str[start]);
+				start += 1;
+				i+=1;
+				printf("after : i : %c\n", str[i]);
+				printf("after : start : %c\n", str[start]);
+				continue;
+			}
             int variable_start = i + 1;
             while (str[variable_start] != '\0' && is_variable_character(str[variable_start]))
                 variable_start++;
-            if (variable_start != i + 1) // Only process $ followed by a variable
+			if ((str[variable_start] == '\'' && str[variable_start + 1] == '\'') || (str[variable_start] == '"' && str[variable_start + 1] == '"'))
+			{
+				
+				variable_start += 2;
+			}
+            if (variable_start != i + 1)
             {
                 char *temp = extract_substring(str, i + 1, variable_start);
                 char *value = get_env_value(env, temp, i + 1, variable_start);
                 result = append_segment(result, str, start, i);
                 if (value != NULL)
-                {
                     result = append_env_value(result, value);
-                }
                 free(temp);
                 start = variable_start;
             }
@@ -261,6 +269,91 @@ char *expand_result(char *str, char **env)
     result = append_segment(result, str, start, i);
     return result;
 }
+
+// char *expand_result(char *str, char **env)
+// {
+//     int i = 0, start = 0;
+//     char *result = NULL;
+//     bool in_single_quotes = false;
+//     bool in_double_quotes = false;
+
+//     while (str[i] != '\0')
+//     {
+//         if (str[i] == '\'')
+//         {
+//             if (!in_double_quotes)
+//                 in_single_quotes = !in_single_quotes;
+//             i++;
+//             continue;
+//         }
+
+//         if (str[i] == '\"')
+//         {
+//             if (!in_single_quotes)
+//                 in_double_quotes = !in_double_quotes;
+//             i++;
+//             continue;
+//         }
+
+//         if (str[i] == '$'  && !in_single_quotes )
+//         {
+//             if (str[i+1] == '?')
+//             {
+//                 char *exit_status_str = ft_itoa(exit_status);
+//                 result = append_segment(result, str, start, i);
+//                 result = append_to_str(result, exit_status_str);
+//                 start = i + 2; 
+//                 i += 2;
+//                 continue;
+//             }
+//             else if (str[i+1] == '$')
+//             {
+                
+//                 result = append_segment(result, str, start, i+1);
+//                 start = i+1;
+//                 i+=2;
+//                 continue;
+//             }
+// 			else if ((str[i+1] >= 48 && str[i+1] <= 57) || str[i + 1] == '@')
+//             {
+//                 start = i + 2; 
+//                 i += 2;
+//                 result = append_segment(result, str, start, i);
+//                 continue;
+//             }
+//             int variable_start = i + 1;
+//             while (str[variable_start] != '\0' && is_variable_character(str[variable_start]))
+//                 variable_start++;
+// 			if ((str[variable_start] == '\'' && str[variable_start + 1] == '\'') || (str[variable_start] == '"' && str[variable_start + 1] == '"'))
+// 				variable_start += 2;
+//             if (variable_start != i + 1)
+//             {
+//                 char *temp = extract_substring(str, i + 1, variable_start);
+//                 char *value = get_env_value(env, temp, i + 1, variable_start);
+//                 result = append_segment(result, str, start, i);
+//                 if (value != NULL)
+//                 {
+//                     result = append_env_value(result, value);
+//                 }
+//                 free(temp);
+//                 start = variable_start;
+//             }
+//             else // case when there is only a $ sign without a following variable
+//             {
+//                 result = append_segment(result, str, start, i + 1);
+//                 start = i + 1;
+//             }
+//             i = variable_start;
+//         }
+//         else
+//         {
+//             i++;
+//         }
+//     }
+//     result = append_segment(result, str, start, i);
+//     return result;
+// }
+
 int read_line(char **line)
 {
 	*line = readline("minishell> ");
@@ -338,6 +431,15 @@ t_data    *get_cmd_file(t_command *lexer, t_data *data, t_file *file, t_cmd *cmd
 		}
 		lexer = lexer->next;
 	}
+	// t_data *curr = lexer;
+	// printf("/------------------\n");
+	// while(curr)
+	// {
+	// 	printf("--->%s\n", curr->content->content);
+	// 	curr = curr->next;
+	// }
+	// printf("/------------------\n");
+
 	return (data);
 }
 
@@ -457,6 +559,7 @@ int main(int ac, char **av, char **env)
 		process_tokens(line, &lexer);
 		if (check_syntax_errors(lexer) || check_quotes(line))
 			continue;
+		here_document(lexer);
 		// char *expand = expand_result(line, env);
 		// free(lexer->content->content);
 		// lexer = NULL;

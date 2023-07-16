@@ -9,84 +9,25 @@ typedef struct s_env
     char* value;
     struct s_env* next;
 } t_env;
-static int	count_digit(long int n)
-{
-	int	count;
-
-	count = 0;
-	if (n == 0)
-		return (1);
-	if (n < 0)
-		count++;
-	while (n)
-	{
-		n /= 10;
-		count++;
-	}
-	return (count);
-}
-
-static void	convert_count(char *str, long int n)
-{
-	int	index;
-	int	count;
-
-	count = count_digit(n);
-	index = 0;
-	if (n < 0)
-	{
-		n *= -1;
-		str[index] = '-';
-		index++;
-	}
-	str[count] = '\0';
-	while (index < count--)
-	{
-		str[count] = n % 10 + 48;
-		n /= 10;
-	}
-}
 
 char	*ft_itoa(int n)
 {
 	int		len;
 	char	*str;
-
-	len = count_digit ((long int)n);
-	str = malloc ((sizeof(char) * len) + 1);
+    
+	len = snprintf(NULL, 0, "%d", n);
+	str = (char*)malloc ((sizeof(char) * len) + 1);
 	if (!str)
 		return (NULL);
-	convert_count (str, (long int) n);
+	snprintf(str, len + 1, "%d", n);
 	return (str);
-}
-
-int str_len(const char* str)
-{
-    int len = 0;
-    while (str[len] != '\0')
-        len++;
-    return len;
-}
-
-char    *str_alloc_copy(const char* src)
-{
-    int len = str_len(src);
-    char    *dest = (char*)malloc(len + 1);
-    int i = 0;
-    while(i < len)
-    {
-        dest[i] = src[i];
-        i++;
-    }
-    dest[len] = '\0';
-    return dest;
 }
 
 t_env   *new_env(char* key, char* value)
 {
     t_env* env = (t_env*)malloc(sizeof(t_env));
-    env->key = str_alloc_copy(key);
-    env->value = str_alloc_copy(value);
+    env->key = strdup(key);
+    env->value = strdup(value);
     env->next = NULL;
     return env;
 }
@@ -122,22 +63,9 @@ t_env   *parse_envs(char  **env)
 
 char    *append_to_str(char* dest, char* src)
 {
-    int dest_len = str_len(dest);
-    int src_len = str_len(src);
-    char* new_str = (char*)malloc(dest_len + src_len + 1);
-    int i = 0;
-    while(i < dest_len)
-    {
-        new_str[i] = dest[i];
-        i++;
-    }
-    i = 0;
-    while(i < src_len)
-    {
-        new_str[dest_len + i] = src[i];
-        i++;
-    }
-    new_str[dest_len + src_len] = '\0';
+    char* new_str = (char*)malloc(strlen(dest) + strlen(src) + 1);
+    strcpy(new_str, dest);
+    strcat(new_str, src);
     return new_str;
 }
 
@@ -148,17 +76,11 @@ bool is_variable_character(char c)
 
 char    *extract_substring(char* str, int start, int end)
 {
-    char    *temp = (char*)malloc(end - start + 1);
-    int j = start;
-    while(j < end)
-    {
-        temp[j - start] = str[j];
-        j++;
-    }
+    char    *temp = (char*)malloc(end - start + 2);
+    strncpy(temp, &str[start], end-start);
     temp[end - start] = '\0';
     return temp;
 }
-
 
 char* get_env_value(char** env, char* temp, int start, int i)
 {
@@ -191,19 +113,21 @@ char    *append_segment(char* result, char* str, int start, int end)
         free(oldResult);
     }
     else
-        result = temp;
+        result = strdup(temp);
+    free(temp);
     return result;
 }
 
 char    *append_env_value(char* result, char* value)
 {
-    if (result != NULL) {
+    if (result != NULL) 
+    {
         char* oldResult = result;
         result = append_to_str(oldResult, value);
         free(oldResult);
     } 
     else
-        result = str_alloc_copy(value);
+        result = strdup(value);
     return result;
 }
 
@@ -239,6 +163,7 @@ char *expand_result(char *str, char **env)
                 char *exit_status_str = ft_itoa(exit_status);
                 result = append_segment(result, str, start, i);
                 result = append_to_str(result, exit_status_str);
+                free(exit_status_str);
                 start = i + 2; 
                 i += 2;
                 continue;
@@ -250,7 +175,7 @@ char *expand_result(char *str, char **env)
                 i+=2;
                 continue;
             }
-			else if ((str[i+1] >= 48 && str[i+1] <= 57) || str[i + 1] == '@')
+            else if ((str[i+1] >= 48 && str[i+1] <= 57) || str[i + 1] == '@')
             {
                 result = append_segment(result, str, start, i);
                 start = i + 2;
@@ -260,22 +185,15 @@ char *expand_result(char *str, char **env)
             int variable_start = i + 1;
             while (str[variable_start] != '\0' && is_variable_character(str[variable_start]))
                 variable_start++;
-            printf("=====>%c\n", str[variable_start]);
             if (str[i+1] == '\'' || str[i+1] == '\"')
-			{
-				result = append_segment(result, str, start, i);
-                // printf("--->%s\n", result);
-                printf("--->%c\n", str[start]);
-                printf("--->%c\n", str[i]);
-				start = i+1;
-				i+=2;
-                printf("after i: > %c\n", str[i]);
-                printf("after start %c \n", str[start]);
-				//continue;
-			}
+            {
+                result = append_segment(result, str, start, i);
+                start = i+1;
+                i+=2;
+                continue;
+            }
             if (variable_start != i + 1)
             {
-                printf("hello\n");
                 char *temp = extract_substring(str, i + 1, variable_start);
                 char *value = get_env_value(env, temp, i + 1, variable_start);
                 result = append_segment(result, str, start, i);
@@ -299,7 +217,6 @@ char *expand_result(char *str, char **env)
     result = append_segment(result, str, start, i);
     return result;
 }
-
 
 int main(int ac, char* av[], char* env[])
 {

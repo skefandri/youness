@@ -1,5 +1,4 @@
-//--> pipes fork dup + builtin open files+builtins
-//   echo   $""
-// echo $''
-// echo $1USER
-// echo $@USER
+//echo test$1test`		|`testtest`
+//$"USER"`			|`USER`
+//echo $'USER'`			|`USER`
+

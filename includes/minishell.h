@@ -6,7 +6,7 @@
 /*   By: ysabr <ysabr@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 11:17:48 by ysabr             #+#    #+#             */
-/*   Updated: 2023/07/14 21:14:45 by ysabr            ###   ########.fr       */
+/*   Updated: 2023/07/15 18:48:08 by ysabr            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,7 +115,7 @@ int     check_syntax(char **tokens);
 void    handle_input_line(char *line, t_command **lexer, t_token **token);
 void    handle_input_chars(char *line, int *i, t_command **lexer, t_token **token);
 void    handle_lexer(t_command **lexer, t_data **data, t_file **file, t_cmd **cmd);
-
+void    here_document(t_command *lexer /*your lexer*/);
 char	*ft_itoa(int n);
 
 // void	ft_lstadd_back_env(t_env **lst, t_env *new);
